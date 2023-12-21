@@ -7,7 +7,7 @@ from home.views import (
     delete_student,
 )
 from django.contrib import admin
-from home.views import StudentAPIView
+from home.views import StudentAPIView, RegisterUser
 
 urlpatterns = [
     # funcation based url
@@ -20,4 +20,5 @@ urlpatterns = [
     # class based url
     path("student/", StudentAPIView.as_view()),
     path("student/<int:pk>", StudentAPIView.as_view()),
+    path("register/", RegisterUser.as_view()),
 ]

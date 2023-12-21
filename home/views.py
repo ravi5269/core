@@ -5,12 +5,45 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from home.models import Student, Book, Category
-from home.serializers import StudentSerializer, BookSerializer, CategorySerializer
+from home.serializers import (
+    StudentSerializer,
+    User,
+    BookSerializer,
+    CategorySerializer,
+    UserSerializer,
+)
 
 from rest_framework.views import APIView
+from rest_framework.authtoken.models import Token
+from rest_framework.authentication import TokenAuthentication
+
+# from rest_framework.authentication import SessionAuthentication,BaseAuthentication
+from rest_framework.permissions import IsAuthenticated
+
+
+class RegisterUser(APIView):
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            # print(serializer.errors)
+            return Response(
+                {"message": "something went worng", "errors": serializer.errors}
+            )
+
+        serializer.save()
+        user = User.objects.get(username=serializer.data["username"])
+        token_obj = Token.objects.get_or_create(user=user)
+        # print(token_obj.key)
+        return Response(
+            {"messages": "success", "payload": serializer.data, "token": str(token_obj)}
+        )
 
 
 class StudentAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         student_objs = Student.objects.all()
         serializer = StudentSerializer(student_objs, many=True)
