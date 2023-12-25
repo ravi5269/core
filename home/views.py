@@ -19,6 +19,7 @@ from rest_framework.authentication import TokenAuthentication
 
 # from rest_framework.authentication import SessionAuthentication,BaseAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class RegisterUser(APIView):
@@ -33,10 +34,13 @@ class RegisterUser(APIView):
 
         serializer.save()
         user = User.objects.get(username=serializer.data["username"])
-        token_obj = Token.objects.get_or_create(user=user)
+        refresh = RefreshToken.for_user(user)
         # print(token_obj.key)
         return Response(
-            {"messages": "success", "payload": serializer.data, "token": str(token_obj)}
+            {"messages": "success",
+            "payload": serializer.data,
+            "refresh": str(refresh),
+            "access":str(refresh.access_token),"message":"your data is saved"}
         )
 
 
